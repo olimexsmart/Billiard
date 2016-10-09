@@ -12,8 +12,8 @@ namespace Biliardo
     public class Ball : BilliardComponents
     {        
         public Point Position;
-        public float Vx, Vy;
-        public static int Radius = 20;
+        public double Vx, Vy;
+        public static int Radius = 16;
 
         private Ball() { }
 

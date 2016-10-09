@@ -13,13 +13,15 @@ namespace Biliardo
     {        
         public int Height { get; private set; }
         public int Widht { get; private set; }
+        public int Border { get; private set; }
 
         private Background() { }
 
-        public Background(SpriteBatch spriteBatch, Texture2D texture, int height, int widht) : base(spriteBatch, texture)
+        public Background(SpriteBatch spriteBatch, Texture2D texture, int height, int widht, int border) : base(spriteBatch, texture)
         {         
             Height = height;
             Widht = widht;
+            Border = border;
         }
 
         public override void Draw()
