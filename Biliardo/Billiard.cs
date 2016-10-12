@@ -96,7 +96,8 @@ namespace Biliardo
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            long dT = update.ElapsedMilliseconds;
+            long dT = update.ElapsedMilliseconds; //Time differential
+            //Update veocites with friction contribute
             foreach (Ball b in balls)            
                 b.UpdateFriction(dT);
             
@@ -113,30 +114,19 @@ namespace Biliardo
                 //Once the collision is detected the update goes on both balls involved
                 for (int k = i + 1; k < balls.Length; k++)
                 {   //Checking if the distance between the two centers is smaller than two radius
-                    bool contact = balls[i].CheckCollision(balls[k]);
-                    bool sameDirection = balls[i].SameDirection(balls[k]);
-                    if (contact && sameDirection)
+                    if (balls[i].CheckCollision(balls[k]) && balls[i].SameDirection(balls[k]))
                     {
-                        double[] newVeli = Collision(balls[i].Vx, balls[i].Vy, balls[k].Vx, balls[k].Vy, balls[i].Position.X, balls[i].Position.Y, balls[k].Position.X, balls[k].Position.Y);
-                        double[] newVelk = Collision(balls[k].Vx, balls[k].Vy, balls[i].Vx, balls[i].Vy, balls[k].Position.X, balls[k].Position.Y, balls[i].Position.X, balls[i].Position.Y);
-
-                        balls[i].Vx = newVeli[0];
-                        balls[i].Vy = newVeli[1];
-
-                        balls[k].Vx = newVelk[0];
-                        balls[k].Vy = newVelk[1];
+                        Ball original = (Ball)balls[i].Clone();
+                        balls[i].Collision(balls[k]);
+                        balls[k].Collision(original);
                     }
                 }
             }
 
-
             //Position update            
-            foreach (Ball b in balls)
-            {
-                b.Position.X += (int) Math.Round(b.Vx * dT);
-                b.Position.Y += (int) Math.Round(b.Vy * dT);
-            }
-
+            foreach (Ball b in balls)           
+                b.UpdatePosition(dT);
+            
             update.Restart();
 
             base.Update(gameTime);

@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Biliardo
 {
-    public class Ball : BilliardComponents
+    public class Ball : BilliardComponents, ICloneable
     {        
         public Point Position;
         public double Vx, Vy;
@@ -45,7 +45,7 @@ namespace Biliardo
 
         public bool CheckCollision(Ball otherBall)
         {   //This simply checks if the distance of the two centers is shorter of a ball diameter
-            return Math.Sqrt((Math.Pow(Position.X - otherBall.Position.X, 2d) + (Math.Pow(Position.Y - otherBall.Position.Y, 2d)))) <= Ball.Radius * 2;
+            return Math.Sqrt((Math.Pow(Position.X - otherBall.Position.X, 2d) + (Math.Pow(Position.Y - otherBall.Position.Y, 2d)))) < Ball.Radius * 2;
         }
 
         public bool SameDirection(Ball otherBall)
@@ -53,6 +53,41 @@ namespace Biliardo
             return ((Vx - otherBall.Vx) * (Position.X - otherBall.Position.X) + (Vy - otherBall.Vy) * (Position.Y - otherBall.Position.Y)) < 0;
         }
 
+        /*
+            It directly updates the object data, so the collision on the other ball needs to
+            be computed on a copy of the object
+        */
+        public void Collision(Ball otherBall)
+        {
+            double relPosX = Position.X - otherBall.Position.X;
+            double relPosY = Position.Y - otherBall.Position.Y;
+            double relVX = Vx - otherBall.Vx;
+            double relVY = Vy - otherBall.Vy;
+            double dotProduct = relVX * relPosX + relVY * relPosY;
 
+            dotProduct /= relPosX * relPosX + relPosY * relPosY;
+            relPosX *= dotProduct;
+            relPosY *= dotProduct;
+
+            Vx -= relPosX;
+            Vy -= relPosY;
+        }
+
+        public void UpdatePosition(long dT)
+        {
+            Position.X += (int)Math.Round(Vx * dT);
+            Position.Y += (int)Math.Round(Vy * dT);
+        }
+
+        //Useful to provide rapidly the original object when a collision occours
+        public object Clone()
+        {
+            Ball newBall = new Ball(SpriteBatch, Texture, Position.X, Position.Y);
+
+            newBall.Vx = Vx;
+            newBall.Vy = Vy;
+
+            return newBall;
+        }
     }
 }
