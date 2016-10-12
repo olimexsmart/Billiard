@@ -72,8 +72,8 @@ namespace Biliardo
             update = new Stopwatch();
             update.Start();
 
-            balls[0].Vx = 1.85d;
-            balls[0].Vy = 0.90d;
+            balls[0].Vx = 0.85d;
+            balls[0].Vy = 0.10d;
             friction = 0.00012d;
         }
 
@@ -97,14 +97,9 @@ namespace Biliardo
                 Exit();
 
             long dT = update.ElapsedMilliseconds;
-            foreach (Ball b in balls)
-            {
-                if (b.Vx > 0) b.Vx -= friction * b.Vx * dT;
-                else b.Vx += friction * -b.Vx * dT;
-
-                if (b.Vy > 0) b.Vy -= friction * b.Vy * dT;
-                else b.Vy += friction * -b.Vy * dT;
-            }
+            foreach (Ball b in balls)            
+                b.UpdateFriction(dT);
+            
         
             //Collision detection
             for (int i = 0; i < balls.Length; i++)
@@ -118,8 +113,8 @@ namespace Biliardo
                 //Once the collision is detected the update goes on both balls involved
                 for (int k = i + 1; k < balls.Length; k++)
                 {   //Checking if the distance between the two centers is smaller than two radius
-                    bool contact = Math.Sqrt((Math.Pow(balls[i].Position.X - balls[k].Position.X, 2d) + (Math.Pow(balls[i].Position.Y - balls[k].Position.Y, 2d)))) <= Ball.Radius * 2;
-                    bool sameDirection = ((balls[i].Vx - balls[k].Vx) * (balls[i].Position.X - balls[k].Position.X) + (balls[i].Vy - balls[k].Vy) * (balls[i].Position.Y - balls[k].Position.Y)) < 0;
+                    bool contact = balls[i].CheckCollision(balls[k]);
+                    bool sameDirection = balls[i].SameDirection(balls[k]);
                     if (contact && sameDirection)
                     {
                         double[] newVeli = Collision(balls[i].Vx, balls[i].Vy, balls[k].Vx, balls[k].Vy, balls[i].Position.X, balls[i].Position.Y, balls[k].Position.X, balls[k].Position.Y);
