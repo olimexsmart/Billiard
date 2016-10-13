@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -100,8 +101,7 @@ namespace Biliardo
             //Update veocites with friction contribute
             foreach (Ball b in balls)            
                 b.UpdateFriction(dT);
-            
-        
+                    
             //Collision detection
             for (int i = 0; i < balls.Length; i++)
             {
@@ -185,10 +185,28 @@ namespace Biliardo
             int X = ((table.Widht - 2 * table.Border) / 4) * 3 + table.Border;
             int Y = table.Height / 2;
             int Yorig = table.Height / 2;
-            int index = 1;
-
+            int index = 0;
+            //White ball 
             balls[0].Position.Y = Y;
             balls[0].Position.X = ((table.Widht - 2 * table.Border) / 4) + table.Border;
+
+            //All the others
+            Random caos = new Random((int) DateTime.Now.Ticks);
+            List<int> indexes = new List<int> { };
+            while(indexes.Count < 15)
+            {
+                int rand = caos.Next(1, balls.Length);
+                if (!indexes.Contains(rand))
+                    indexes.Add(rand);
+            }
+            //Putting the 8 ball in the middle
+            int swap = indexes.IndexOf(8);
+            indexes[swap] = indexes[4];
+            indexes[4] = 8;
+            //Putting the 1 at the beginning
+            swap = indexes.IndexOf(1);
+            indexes[swap] = indexes[0];
+            indexes[0] = 1;
 
             for (int i = 0; i < 5; i++)
             {
@@ -196,8 +214,8 @@ namespace Biliardo
 
                 for (int k = 0; k < i + 1; k++)
                 {
-                    balls[index].Position.X = X;
-                    balls[index].Position.Y = Y;
+                    balls[indexes[index]].Position.X = X;
+                    balls[indexes[index]].Position.Y = Y;
 
                     index++;
 
@@ -206,21 +224,12 @@ namespace Biliardo
 
                 Y = Yorig + Ball.Radius * (i + 1);
             }
+            //TODO: Follow common rules in ball disposition : DONE        
         }
 
-        private double[] Collision(double v1x, double v1y, double v2x, double v2y, int x1x, int x1y, int x2x, int x2y)
-        {
-            double relPosX = x1x - x2x;
-            double relPosY = x1y - x2y;
-            double relVX = v1x - v2x;
-            double relVY = v1y - v2y;
-            double dotProduct = relVX * relPosX + relVY * relPosY;
-
-            dotProduct /= relPosX * relPosX + relPosY * relPosY;
-            relPosX *= dotProduct;
-            relPosY *= dotProduct;
-
-            return new double[] { v1x - relPosX, v1y - relPosY };
-        }
+        //private bool BallInTheHole(Ball b)
+        //{
+        //    if()
+        //}
     }
 }
